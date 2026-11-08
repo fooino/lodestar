@@ -1,0 +1,47 @@
+{
+  "name": "fooino/lodestar",
+  "version": "1.0.0",
+  "description": "Shared coding standards and AI agent instructions for the Fooino ecosystem.",
+  "type": "library",
+  "license": "proprietary",
+  "authors": [
+    {
+      "name": "Sajad Sholi",
+      "email": "sajadsholidev@gmail.com",
+      "role": "owner"
+    }
+  ],
+  "keywords": [
+    "laravel",
+    "fooino",
+    "ai",
+    "agents",
+    "standards",
+    "agents.md"
+  ],
+  "require": {
+    "php": "^8.5",
+    "symfony/console": "^8.0"
+  },
+  "require-dev": {
+    "pestphp/pest": "^5.3"
+  },
+  "autoload": {
+    "psr-4": {
+      "Fooino\\Lodestar\\": "src/"
+    }
+  },
+  "bin": [
+    "bin/sync.php"
+  ],
+  "scripts": {
+    "sync": "@php bin/sync.php",
+    "test": "./vendor/bin/pest",
+    "test:coverage": "XDEBUG_MODE=coverage ./vendor/bin/pest --coverage --min=90"
+  },
+  "config": {
+    "allow-plugins": {
+      "pestphp/pest-plugin": true
+    }
+  }
+}

@@ -1,0 +1,62 @@
+<?php
+
+namespace Fooino\Lodestar\Tasks;
+
+use Fooino\Lodestar\Support\Filesystem;
+
+class WriteKiloFilesTask
+{
+    /**
+     * Write the Kilo config and local rules, agents, and commands
+     */
+    public function run(string $root): void
+    {
+        $this->writeConfig(root: $root);
+        $this->copy(directory: 'rules', destination: $root . '/.kilo/rules');
+        $this->copy(directory: 'agents', destination: $root . '/.kilo/agents');
+        $this->copy(directory: 'commands', destination: $root . '/.kilo/commands');
+    }
+
+    /**
+     * Write kilo.jsonc
+     */
+    private function writeConfig(string $root): void
+    {
+        (new Filesystem())->write(
+            path: $root . '/kilo.jsonc',
+            contents: json_encode(
+                value: [
+                    '$schema'      => 'https://app.kilo.ai/config.json',
+                    'instructions' => $this->instructions(),
+                ],
+                flags: JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES,
+            ) . "\n",
+        );
+    }
+
+    /**
+     * Build the Kilo rule instructions
+     */
+    private function instructions(): array
+    {
+        return array_map(
+            callback: fn(string $path): string => '.kilo/rules/' . basename(path: $path),
+            array: (new Filesystem())->files(pattern: dirname(path: __DIR__, levels: 2) . '/rules/*.md'),
+        );
+    }
+
+    /**
+     * Copy markdown files from the standards repository into the package
+     */
+    private function copy(string $directory, string $destination): void
+    {
+        $files = new Filesystem();
+
+        $files->directory(path: $destination);
+
+        foreach ($files->files(pattern: dirname(path: __DIR__, levels: 2) . '/' . $directory . '/*.md') as $path) {
+
+            $files->copy(from: $path, to: $destination . '/' . basename(path: $path));
+        }
+    }
+}
