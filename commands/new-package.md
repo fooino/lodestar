@@ -14,7 +14,7 @@ Use this when adding one of the future packages. Read `vendor/fooino/lodestar/ru
 6. Write consumer tests against a fake contract (`$this->mock(Media::class, ...)` or `$this->app->instance(Media::class, $fake)`). Do not add the implementation package to `require-dev`.
 7. Remove the domain code you do not need; keep the provider structure. Start models from `templates/Model.php.tpl`.
 8. Add `targets/<key>/delta.md` to the standards repository. The key is the package name after `fooino/` in `composer.json`.
-9. From the new package root, run `composer ai:sync` and commit `AGENTS.md`.
+9. From the new package root, run `composer ai:sync`. `AGENTS.md` and the adapters are generated locally and gitignored.
 10. Add the package to the consuming application's `composer.json` only after its first tagged release. The application binds every contract to this package's implementation.
 
 If the package adds an exception file, claim its own 100-code range in `rules/20-exceptions.md` before writing it. There is no package-wide range.

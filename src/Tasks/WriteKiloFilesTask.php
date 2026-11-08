@@ -3,6 +3,7 @@
 namespace Fooino\Lodestar\Tasks;
 
 use Fooino\Lodestar\Support\Filesystem;
+use RuntimeException;
 
 class WriteKiloFilesTask
 {
@@ -51,10 +52,22 @@ class WriteKiloFilesTask
     private function copy(string $directory, string $destination): void
     {
         $files = new Filesystem();
+        $source = dirname(path: __DIR__, levels: 2) . '/' . $directory;
+        $paths = $files->files(pattern: $source . '/*.md');
+
+        if ($paths === []) {
+
+            throw new RuntimeException(message: 'No files found in ' . $source);
+        }
 
         $files->directory(path: $destination);
 
-        foreach ($files->files(pattern: dirname(path: __DIR__, levels: 2) . '/' . $directory . '/*.md') as $path) {
+        foreach ($files->files(pattern: $destination . '/*.md') as $stale) {
+
+            $files->unlink(path: $stale);
+        }
+
+        foreach ($paths as $path) {
 
             $files->copy(from: $path, to: $destination . '/' . basename(path: $path));
         }

@@ -43,12 +43,13 @@ Run TIA after every task; fall back to `./vendor/bin/pest` when the failure deta
 
 ## Tool adapters
 
-This repository commits only `AGENTS.md`. Generate your tool's adapter locally; the files are gitignored:
+`AGENTS.md` and every adapter are generated locally from `fooino/lodestar` and gitignored. Re-sync to rebuild them; nothing generated is committed.
 
 ```bash
-composer ai:kilo     # kilo.jsonc + .kilo/{rules,agents,commands}
-composer ai:cursor   # .cursor/rules/fooino-standards.mdc
-composer ai:claude   # CLAUDE.md
+composer ai:sync                    # AGENTS.md + all adapters
+composer ai:sync -- --tool=kilo     # kilo.jsonc + .kilo/{rules,agents,commands}
+composer ai:sync -- --tool=cursor   # .cursor/rules/fooino-standards.mdc
+composer ai:sync -- --tool=claude   # CLAUDE.md
 ```
 
 Codex reads `AGENTS.md` directly and needs no adapter.
