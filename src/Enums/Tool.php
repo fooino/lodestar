@@ -11,10 +11,10 @@ use Fooino\Lodestar\Tasks\WriteKiloFilesTask;
  */
 enum Tool: string
 {
-    case Kilo = 'kilo';
+    case All    = 'all';
+    case Kilo   = 'kilo';
     case Cursor = 'cursor';
     case Claude = 'claude';
-    case All = 'all';
 
     /**
      * Return the labelled tasks for this tool
@@ -35,9 +35,9 @@ enum Tool: string
     private function task(): array
     {
         return match ($this) {
-            self::Kilo   => ['kilo adapter' => new WriteKiloFilesTask()],
-            self::Cursor => ['cursor adapter' => new WriteCursorFileTask()],
-            self::Claude => ['claude adapter' => new WriteClaudeFileTask()],
+            self::Kilo   => ['kilo adapter'     => new WriteKiloFilesTask()],
+            self::Cursor => ['cursor adapter'   => new WriteCursorFileTask()],
+            self::Claude => ['claude adapter'   => new WriteClaudeFileTask()],
         };
     }
 

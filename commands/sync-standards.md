@@ -30,13 +30,6 @@ The binary can be called directly instead: `php vendor/fooino/lodestar/bin/sync.
 
 Codex reads `AGENTS.md` directly and needs no adapter.
 
-## From the standards repository
-
-```bash
-cd ../1-core
-composer ai:sync
-```
-
 ## After syncing
 
 1. Review `AGENTS.md`.

@@ -13,10 +13,15 @@ class GetCurrentPackageTask
     public function run(): array
     {
         $root = $this->root();
+
         $composer = $this->composer(root: $root);
+
         $name = (string) $composer['name'];
+
         [$vendor, $package] = $this->splitName(name: $name);
+
         $key = strtolower(string: $package);
+        
         $pascal = $this->pascal(value: $key);
 
         return [

@@ -1,5 +1,7 @@
 <?php
 
+namespace Fooino\Lodestar\Tests\Unit;
+
 use Fooino\Lodestar\Tasks\GetRuleFilesTask;
 
 describe('GetRuleFilesTask', function () {

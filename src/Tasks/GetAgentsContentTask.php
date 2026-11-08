@@ -11,7 +11,7 @@ class GetAgentsContentTask
      */
     public function run(array $package): string
     {
-        return strtr(string: $this->template(), from: $this->replacements(package: $package));
+        return strtr($this->template(), $this->replacements(package: $package));
     }
 
     /**

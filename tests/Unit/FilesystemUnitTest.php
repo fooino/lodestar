@@ -1,5 +1,7 @@
 <?php
 
+namespace Fooino\Lodestar\Tests\Unit;
+
 use Fooino\Lodestar\Support\Filesystem;
 use RuntimeException;
 
@@ -13,6 +15,7 @@ describe('Filesystem', function () {
         $files->directory(path: $root);
         $files->directory(path: $root . '/nested');
         $files->directory(path: $root . '/fake.md');
+
         $files->write(path: $root . '/b.md', contents: 'b');
         $files->write(path: $root . '/a.md', contents: 'a');
         $files->write(path: $root . '/nested/c.md', contents: 'c');
@@ -20,8 +23,11 @@ describe('Filesystem', function () {
         try {
 
             expect($files->read(path: $root . '/a.md'))->toBe('a');
+
             expect($files->isFile(path: $root . '/a.md'))->toBeTrue();
+
             expect($files->isDirectory(path: $root . '/nested'))->toBeTrue();
+
             expect($files->files(pattern: $root . '/*.md'))->toBe([
                 $root . '/a.md',
                 $root . '/b.md',
@@ -30,6 +36,8 @@ describe('Filesystem', function () {
             $files->copy(from: $root . '/a.md', to: $root . '/copy.md');
 
             expect($files->read(path: $root . '/copy.md'))->toBe('a');
+
+            // 
         } finally {
 
             removeDirectory(path: $root);
@@ -49,6 +57,8 @@ describe('Filesystem', function () {
             $files->delete(path: $root . '/nested');
 
             expect($files->isDirectory(path: $root . '/nested'))->toBeFalse();
+
+            // 
         } finally {
 
             removeDirectory(path: $root);
@@ -60,7 +70,10 @@ describe('Filesystem', function () {
         $files = new Filesystem();
 
         expect(fn() => $files->files(pattern: dirname(path: __DIR__, levels: 2) . '/bin/*.php'))
-            ->toThrow(RuntimeException::class, 'Unsupported file type');
+            ->toThrow(
+                RuntimeException::class,
+                'Unsupported file type'
+            );
     });
 
     it('refuses to unlink a directory', function () {
@@ -73,7 +86,12 @@ describe('Filesystem', function () {
         try {
 
             expect(fn() => $files->unlink(path: $root))
-                ->toThrow(RuntimeException::class, 'Refusing to unlink non-file');
+                ->toThrow(
+                    RuntimeException::class,
+                    'Refusing to unlink non-file'
+                );
+
+            // 
         } finally {
 
             removeDirectory(path: $root);
@@ -92,32 +110,53 @@ describe('Filesystem', function () {
             $files->delete(path: $root . '/missing.md');
 
             expect($files->isFile(path: $root . '/missing.md'))->toBeFalse();
+
+            // 
         } finally {
 
             removeDirectory(path: $root);
         }
     });
 
-    it('only allows json and markdown files', function () {
+    it('only allows the supported extensions', function () {
 
         $root = sys_get_temp_dir() . '/fooino-standards-' . uniqid();
         $files = new Filesystem();
 
         $files->directory(path: $root);
         $files->write(path: $root . '/data.json', contents: '{}');
+        $files->write(path: $root . '/config.jsonc', contents: '{}');
         $files->write(path: $root . '/readme.md', contents: '# hi');
+        $files->write(path: $root . '/rule.mdc', contents: '# rule');
 
         try {
 
             expect($files->read(path: $root . '/data.json'))->toBe('{}');
+            expect($files->read(path: $root . '/config.jsonc'))->toBe('{}');
             expect($files->read(path: $root . '/readme.md'))->toBe('# hi');
+            expect($files->read(path: $root . '/rule.mdc'))->toBe('# rule');
+
             expect(fn() => $files->read(path: $root . '/.env'))
-                ->toThrow(RuntimeException::class, 'Unsupported file type');
+                ->toThrow(
+                    RuntimeException::class,
+                    'Unsupported file type'
+                );
+
             expect(fn() => $files->write(path: $root . '/evil.php', contents: '<?php'))
-                ->toThrow(RuntimeException::class, 'Unsupported file type');
+                ->toThrow(
+                    RuntimeException::class,
+                    'Unsupported file type'
+                );
+
             expect(fn() => $files->copy(from: $root . '/readme.md', to: $root . '/evil.php'))
-                ->toThrow(RuntimeException::class, 'Unsupported file type');
+                ->toThrow(
+                    RuntimeException::class,
+                    'Unsupported file type'
+                );
+
             expect($files->isFile(path: $root . '/evil.php'))->toBeFalse();
+
+            // 
         } finally {
 
             removeDirectory(path: $root);
@@ -136,7 +175,12 @@ describe('Filesystem', function () {
         try {
 
             expect(fn() => $files->read(path: $root . '/AGENTS.md'))
-                ->toThrow(RuntimeException::class, 'Refusing symlink');
+                ->toThrow(
+                    RuntimeException::class,
+                    'Refusing symlink'
+                );
+
+            // 
         } finally {
 
             removeDirectory(path: $root);
@@ -158,15 +202,36 @@ describe('Filesystem', function () {
             try {
 
                 expect(fn() => $files->read(path: $root . '/missing.md'))
-                    ->toThrow(RuntimeException::class, 'Unable to read file');
+                    ->toThrow(
+                        RuntimeException::class,
+                        'Unable to read file'
+                    );
+
                 expect(fn() => $files->write(path: $root . '/missing/child.md', contents: 'x'))
-                    ->toThrow(RuntimeException::class, 'Unable to write file');
+                    ->toThrow(
+                        RuntimeException::class,
+                        'Unable to write file'
+                    );
+
                 expect(fn() => $files->copy(from: $root . '/missing.md', to: $root . '/copy.md'))
-                    ->toThrow(RuntimeException::class, 'Unable to copy file');
+                    ->toThrow(
+                        RuntimeException::class,
+                        'Unable to copy file'
+                    );
+
                 expect(fn() => $files->directory(path: $root . '/file.md'))
-                    ->toThrow(RuntimeException::class, 'Unable to create directory');
+                    ->toThrow(
+                        RuntimeException::class,
+                        'Unable to create directory'
+                    );
+
                 expect(fn() => $files->link(target: $root . '/file.md', link: $root . '/file.md'))
-                    ->toThrow(RuntimeException::class, 'Unable to link');
+                    ->toThrow(
+                        RuntimeException::class,
+                        'Unable to link'
+                    );
+
+                // 
             } finally {
 
                 restore_error_handler();

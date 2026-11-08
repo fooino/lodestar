@@ -2,8 +2,6 @@
 
 You are working on the standards repository itself, not on a consuming Fooino package.
 
-This file is hand-written and applies only here. It is never generated and never ships: the file a package receives is produced from `templates/AGENTS.md`.
-
 Read `rules/00-principles.md` and `rules/10-architecture.md` before changing the generator, and the owning file before editing a rule.
 
 ## Layout
@@ -41,13 +39,7 @@ composer test:coverage   # fails below 90%
 
 This repository runs at 90%; the rules it ships ask 95% of packages. Cover new scenarios and their failure paths, including an unknown `--tool` value.
 
-Then verify generation end to end from a package wired to this working copy through a path repository (`0-skeleton` and `1-core` in this workspace; a VCS install only sees the published copy):
-
-```bash
-cd ../0-skeleton && composer ai:sync -- --tool=kilo
-```
-
-Read the generated `AGENTS.md` and adapter. Tests cover the generator; only a real sync proves the output.
+Packages see the output only on release: tag, then the developer runs `composer update` and `composer ai:sync` in the package root.
 
 ## Agent behavior
 

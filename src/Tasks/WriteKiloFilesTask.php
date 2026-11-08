@@ -13,8 +13,11 @@ class WriteKiloFilesTask
     public function run(string $root): void
     {
         $this->writeConfig(root: $root);
+
         $this->copy(directory: 'rules', destination: $root . '/.kilo/rules');
+
         $this->copy(directory: 'agents', destination: $root . '/.kilo/agents');
+        
         $this->copy(directory: 'commands', destination: $root . '/.kilo/commands');
     }
 
@@ -42,7 +45,7 @@ class WriteKiloFilesTask
     {
         return array_map(
             callback: fn(string $path): string => '.kilo/rules/' . basename(path: $path),
-            array: (new Filesystem())->files(pattern: dirname(path: __DIR__, levels: 2) . '/rules/*.md'),
+            array: (new GetRuleFilesTask())->run(),
         );
     }
 
@@ -52,7 +55,9 @@ class WriteKiloFilesTask
     private function copy(string $directory, string $destination): void
     {
         $files = new Filesystem();
+
         $source = dirname(path: __DIR__, levels: 2) . '/' . $directory;
+        
         $paths = $files->files(pattern: $source . '/*.md');
 
         if ($paths === []) {

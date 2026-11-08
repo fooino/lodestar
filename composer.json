@@ -30,6 +30,11 @@
       "Fooino\\Lodestar\\": "src/"
     }
   },
+  "autoload-dev": {
+    "psr-4": {
+      "Fooino\\Lodestar\\Tests\\": "tests/"
+    }
+  },
   "bin": [
     "bin/sync.php"
   ],

@@ -1,5 +1,7 @@
 <?php
 
+namespace Fooino\Lodestar\Tests\Unit;
+
 use Fooino\Lodestar\Support\Filesystem;
 use Fooino\Lodestar\Tasks\WriteAgentsFileTask;
 use RuntimeException;
@@ -19,8 +21,14 @@ describe('WriteAgentsFileTask', function () {
         try {
 
             expect(fn() => (new WriteAgentsFileTask())->run(root: $root, content: 'new'))
-                ->toThrow(RuntimeException::class, 'Refusing symlink');
+                ->toThrow(
+                    RuntimeException::class,
+                    'Refusing symlink'
+                );
+
             expect($files->read(path: $target))->toBe('original');
+
+            // 
         } finally {
 
             removeDirectory(path: $root);
