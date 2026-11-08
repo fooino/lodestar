@@ -1,6 +1,5 @@
 {
   "name": "fooino/lodestar",
-  "version": "1.0.0",
   "description": "Shared coding standards and AI agent instructions for the Fooino ecosystem.",
   "type": "library",
   "license": "proprietary",
