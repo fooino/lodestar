@@ -6,7 +6,7 @@ These apply to every Fooino package. A package `AGENTS.md` may add constraints; 
 
 - PHP `^8.5`, Laravel `^13`, MySQL `^9.7` — the versions every package targets.
 - The application uses Redis for caching.
-- Tests default to SQLite with the `array` cache driver. A test that needs real MySQL or Redis guards itself, as described in `rules/30-testing.md`.
+- Tests default to SQLite with the `array` cache driver. A test that needs real MySQL or Redis guards itself, as described in `30-testing.md`.
 
 ## Language and types
 
@@ -38,7 +38,7 @@ These apply to every Fooino package. A package `AGENTS.md` may add constraints; 
 
 - Pint is the only formatter. Run `./vendor/bin/pint`, verify with `./vendor/bin/pint --test`.
 - One space around operators; `$a . $b`; `!$value`; `fn() => ...`; no trailing commas; keep `string|null` as written.
-- Never hand-format or add suppression comments. If a rule is wrong, change `pint.json` and its rationale in `docs/pint.md`.
+- Never hand-format or add suppression comments. If a rule is wrong, change `pint.json` and its rationale in `pint.md`.
 - No `dd`, `dump`, `var_dump`, `ray`, `print_r`, or `error_log` in committed code.
 - `pint.json` is shared across packages; change it everywhere in one change.
 
