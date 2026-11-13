@@ -37,7 +37,7 @@ describe('Filesystem', function () {
 
             expect($files->read(path: $root . '/copy.md'))->toBe('a');
 
-            // 
+            //
         } finally {
 
             removeDirectory(path: $root);
@@ -58,7 +58,7 @@ describe('Filesystem', function () {
 
             expect($files->isDirectory(path: $root . '/nested'))->toBeFalse();
 
-            // 
+            //
         } finally {
 
             removeDirectory(path: $root);
@@ -91,7 +91,7 @@ describe('Filesystem', function () {
                     'Refusing to unlink non-file'
                 );
 
-            // 
+            //
         } finally {
 
             removeDirectory(path: $root);
@@ -111,7 +111,7 @@ describe('Filesystem', function () {
 
             expect($files->isFile(path: $root . '/missing.md'))->toBeFalse();
 
-            // 
+            //
         } finally {
 
             removeDirectory(path: $root);
@@ -156,7 +156,7 @@ describe('Filesystem', function () {
 
             expect($files->isFile(path: $root . '/evil.php'))->toBeFalse();
 
-            // 
+            //
         } finally {
 
             removeDirectory(path: $root);
@@ -180,7 +180,7 @@ describe('Filesystem', function () {
                     'Refusing symlink'
                 );
 
-            // 
+            //
         } finally {
 
             removeDirectory(path: $root);
@@ -231,7 +231,7 @@ describe('Filesystem', function () {
                         'Unable to link'
                     );
 
-                // 
+                //
             } finally {
 
                 restore_error_handler();

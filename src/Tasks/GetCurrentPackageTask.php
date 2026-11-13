@@ -21,7 +21,7 @@ class GetCurrentPackageTask
         [$vendor, $package] = $this->splitName(name: $name);
 
         $key = strtolower(string: $package);
-        
+
         $pascal = $this->pascal(value: $key);
 
         return [

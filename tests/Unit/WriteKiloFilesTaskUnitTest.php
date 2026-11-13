@@ -33,7 +33,7 @@ describe('WriteKiloFilesTask', function () {
                 ),
             );
 
-            // 
+            //
         } finally {
 
             removeDirectory(path: $root);
@@ -65,7 +65,7 @@ describe('WriteKiloFilesTask', function () {
                 expect($files->read(path: $target))->toBe($files->read(path: $source));
             }
 
-            // 
+            //
         } finally {
 
             removeDirectory(path: $root);
@@ -94,7 +94,7 @@ describe('WriteKiloFilesTask', function () {
             expect($files->isFile(path: $root . '/.kilo/' . $directory . '/999-stale.md'))->toBeFalse();
             expect($files->files(pattern: $root . '/.kilo/' . $directory . '/*.md'))->toHaveCount(count(value: $sources));
 
-            // 
+            //
         } finally {
 
             removeDirectory(path: $root);

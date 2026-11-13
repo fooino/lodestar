@@ -42,7 +42,7 @@ describe('SyncStandardsAction', function () {
 
             expect((new SyncStandardsAction())->run(tool: Tool::Kilo))->toBe(['AGENTS.md', 'kilo adapter']);
 
-            // 
+            //
         } finally {
 
             chdir(directory: $cwd);

@@ -7,8 +7,8 @@ namespace Fooino\Lodestar\Enums;
  */
 enum AllowedExtension: string
 {
-    case Json     = 'json';
-    case Jsonc    = 'jsonc';
+    case Json = 'json';
+    case Jsonc = 'jsonc';
     case Markdown = 'md';
-    case Mdc      = 'mdc';
+    case Mdc = 'mdc';
 }

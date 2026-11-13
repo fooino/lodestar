@@ -148,7 +148,7 @@ describe('GetCurrentPackageTask', function () {
                     'Invalid package name'
                 );
 
-            // 
+            //
         } finally {
 
             chdir(directory: $cwd);

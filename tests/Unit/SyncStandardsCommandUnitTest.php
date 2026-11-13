@@ -29,12 +29,12 @@ describe('SyncStandardsCommand', function () {
             $tester = new CommandTester(command: new SyncStandardsCommand());
 
             expect($tester->execute(input: []))->toBe(0);
-        
+
             expect($tester->getDisplay())->toContain('AGENTS.md updated');
             expect($tester->getDisplay())->toContain('kilo adapter updated');
             expect($tester->getDisplay())->toContain('cursor adapter updated');
             expect($tester->getDisplay())->toContain('claude adapter updated');
-        
+
             expect($root . '/kilo.jsonc')->toBeFile();
             expect($root . '/.cursor/rules/fooino-standards.mdc')->toBeFile();
             expect($root . '/CLAUDE.md')->toBeFile();
@@ -72,7 +72,7 @@ describe('SyncStandardsCommand', function () {
 
             expect($tester->getDisplay())->toContain('kilo adapter updated');
             expect($tester->getDisplay())->not->toContain('cursor adapter updated');
-            
+
             expect($root . '/kilo.jsonc')->toBeFile();
 
             //
@@ -92,7 +92,7 @@ describe('SyncStandardsCommand', function () {
         $files = new Filesystem();
 
         $files->directory(path: $root);
-        
+
         $files->write(
             path: $root . '/composer.json',
             contents: json_encode(value: ['name' => 'fooino/core']),

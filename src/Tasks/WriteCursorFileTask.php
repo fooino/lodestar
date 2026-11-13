@@ -15,7 +15,7 @@ class WriteCursorFileTask
         $files = new Filesystem();
 
         $files->directory(path: dirname(path: $path));
-        
+
         $files->write(path: $path, contents: $this->content());
     }
 

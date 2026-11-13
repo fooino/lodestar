@@ -17,7 +17,7 @@ class WriteKiloFilesTask
         $this->copy(directory: 'rules', destination: $root . '/.kilo/rules');
 
         $this->copy(directory: 'agents', destination: $root . '/.kilo/agents');
-        
+
         $this->copy(directory: 'commands', destination: $root . '/.kilo/commands');
     }
 
@@ -57,7 +57,7 @@ class WriteKiloFilesTask
         $files = new Filesystem();
 
         $source = dirname(path: __DIR__, levels: 2) . '/' . $directory;
-        
+
         $paths = $files->files(pattern: $source . '/*.md');
 
         if ($paths === []) {

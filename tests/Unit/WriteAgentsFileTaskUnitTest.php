@@ -28,7 +28,7 @@ describe('WriteAgentsFileTask', function () {
 
             expect($files->read(path: $target))->toBe('original');
 
-            // 
+            //
         } finally {
 
             removeDirectory(path: $root);
