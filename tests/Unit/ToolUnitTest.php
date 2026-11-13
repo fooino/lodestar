@@ -1,5 +1,7 @@
 <?php
 
+namespace Fooino\Lodestar\Tests\Unit;
+
 use Fooino\Lodestar\Enums\Tool;
 
 describe('Tool', function () {

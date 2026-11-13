@@ -11,10 +11,10 @@ use Fooino\Lodestar\Tasks\WriteKiloFilesTask;
  */
 enum Tool: string
 {
+    case All = 'all';
     case Kilo = 'kilo';
     case Cursor = 'cursor';
     case Claude = 'claude';
-    case All = 'all';
 
     /**
      * Return the labelled tasks for this tool

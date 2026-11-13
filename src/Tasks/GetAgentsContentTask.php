@@ -11,7 +11,7 @@ class GetAgentsContentTask
      */
     public function run(array $package): string
     {
-        return strtr(string: $this->template(), from: $this->replacements(package: $package));
+        return strtr($this->template(), $this->replacements(package: $package));
     }
 
     /**
@@ -32,8 +32,21 @@ class GetAgentsContentTask
             '{{composer}}'    => $package['composer'],
             '{{namespace}}'   => $package['namespace'],
             '{{rules_links}}' => implode(separator: "\n", array: $this->links()),
-            '{{delta}}'       => trim(string: (new Filesystem())->read(path: $package['delta'])),
+            '{{delta}}'       => $this->delta(package: $package),
         ];
+    }
+
+    /**
+     * Read the package delta when the package has one
+     */
+    private function delta(array $package): string
+    {
+        if ($package['delta'] === null) {
+
+            return '';
+        }
+
+        return trim(string: (new Filesystem())->read(path: $package['delta']));
     }
 
     /**

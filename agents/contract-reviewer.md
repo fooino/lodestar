@@ -12,7 +12,9 @@ steps: 25
 
 You are the contract reviewer for a Fooino package.
 
-Before doing anything, read `vendor/fooino/lodestar/rules/00-principles.md`, `vendor/fooino/lodestar/rules/10-architecture.md`, `vendor/fooino/lodestar/rules/20-exceptions.md`.
+Before doing anything, read `00-principles.md`, `10-architecture.md`, `20-exceptions.md`.
+
+In the application, the public surface is `app/`, `routes/`, `config/`, and `database/`. The package paths below describe packages only.
 
 ## Public surface to inspect
 

@@ -1,31 +1,99 @@
 ---
-description: Bootstrap a new Fooino package from the skeleton and add its standards delta.
+description: Scaffold a copied skeleton directory into a new Fooino package.
 ---
 
-Use this when adding one of the future packages. Read `vendor/fooino/lodestar/rules/10-architecture.md` and `commands/release.md` first.
+The developer creates `packages/<name>` and copies every skeleton file into it before running this command. Run from that directory. Do not clone, copy, or install the skeleton yourself.
 
-## Steps
+## Ask for the name
 
-1. Copy `fooino/skeleton` into the new package directory.
-2. Decide the layer: put generic, request-free tools in `fooino/core`; put anything that uses the database, models, requests, responses, middleware, auth, or session in `fooino/base` or a domain package.
-3. Rename the namespace, package name, provider, config file, and publish tags.
-4. Change the runtime requirement to `fooino/base` (which brings `fooino/core`). Do **not** require `fooino/skeleton`.
-5. If the package needs a capability from another domain package, add a domain contract (`Media`, `Setting`) under `fooino/base/src/Contracts/` **before** writing the consumer code. Never require the sibling package.
-6. Write consumer tests against a fake contract (`$this->mock(Media::class, ...)` or `$this->app->instance(Media::class, $fake)`). Do not add the implementation package to `require-dev`.
-7. Remove the domain code you do not need; keep the provider structure. Start models from `templates/Model.php.tpl`.
-8. Add `targets/<key>/delta.md` to the standards repository. The key is the package name after `fooino/` in `composer.json`.
-9. From the new package root, run `composer ai:sync` and commit `AGENTS.md`.
-10. Add the package to the consuming application's `composer.json` only after its first tagged release. The application binds every contract to this package's implementation.
+1. Confirm the current `composer.json` still has `"name": "fooino/skeleton"`. If it does not, stop and report.
+2. Ask: **"What is the name of the new package?"** The answer is `{PACKAGE_SLUG}` — lowercase, no spaces, for example `product`.
+3. Derive the rest:
 
-If the package adds an exception file, claim its own 100-code range in `rules/20-exceptions.md` before writing it. There is no package-wide range.
+| Variable | Rule | Example |
+|---|---|---|
+| `{PACKAGE_SLUG}` | the answer | `product` |
+| `{PACKAGE_NAMESPACE}` | `Str::studly({PACKAGE_SLUG})` | `Product` |
+| `{PACKAGE_CONSTANT}` | `Str::upper(Str::snake({PACKAGE_SLUG}))` | `PRODUCT` |
+| `{PACKAGE_LOWER}` | `Str::lower({PACKAGE_SLUG})` | `product` |
 
-## Guardrails
+The composer name is `fooino/{PACKAGE_SLUG}`.
 
-- Never assign one exception range to two exception files; each class claims its own 100-code block.
-- Do not add foreign key constraints to package migrations; the application owns referential integrity.
-- Do not ship routes, controllers, gates, or policies. Expose Tasks, Actions, Commands, middleware, requests, models, and contracts; the application invokes them.
-- Do not invoke a Task or Action from the provider's `boot()` or `register()`.
-- Never require or import a sibling domain package, including as a dev dependency for tests. Use a contract in `fooino/base` and fake it.
-- Do not add a dependency on `fooino/base` from `fooino/core`.
-- Do not bind a domain package's concrete class inside `fooino/base`; the application owns bindings.
-- Keep `AGENTS.md` generated; put package-specific notes in `targets/<key>/delta.md`.
+## Rename and replace
+
+Apply in this order and re-read each file after editing. Every `Skeleton`, `skeleton`, and `SKELETON` in code, strings, comments, and paths becomes the matching variable.
+
+### 1. `composer.json`
+
+| From | To |
+|---|---|
+| `"name": "fooino/skeleton"` | `"name": "fooino/{PACKAGE_SLUG}"` |
+| `The fooino skeleton package with tools and functionalities.` | `The fooino {PACKAGE_LOWER} package with tools and functionalities.` |
+| `"skeleton"` in `keywords` | `"{PACKAGE_SLUG}"` |
+| Every `Fooino\\Skeleton\\` in `autoload`, `autoload-dev`, and `extra` | `Fooino\\{PACKAGE_NAMESPACE}\\` |
+| `Providers\\SkeletonServiceProvider` in `extra.laravel.providers` | `Providers\\{PACKAGE_NAMESPACE}ServiceProvider` |
+
+### 2. Provider
+
+Rename `src/Providers/SkeletonServiceProvider.php` to `src/Providers/{PACKAGE_NAMESPACE}ServiceProvider.php`, then:
+
+| From | To |
+|---|---|
+| `namespace Fooino\Skeleton\Providers;` | `namespace Fooino\{PACKAGE_NAMESPACE}\Providers;` |
+| `class SkeletonServiceProvider extends ServiceProvider` | `class {PACKAGE_NAMESPACE}ServiceProvider extends ServiceProvider` |
+| Every `fooino-skeleton-{xxx}` (config, migrations, langs, assets, views, publish-all) | `fooino-{PACKAGE_SLUG}-{xxx}` |
+| Every `config('fooino-skeleton.{xxx}')` | `config('fooino-{PACKAGE_SLUG}.{xxx}')` |
+| `lang_path("vendor/fooino/skeleton")` | `lang_path("vendor/fooino/{PACKAGE_SLUG}")` |
+| `public_path('vendor/fooino/skeleton')` | `public_path('vendor/fooino/{PACKAGE_SLUG}')` |
+| `resource_path("views/vendor/fooino/skeleton")` | `resource_path("views/vendor/fooino/{PACKAGE_SLUG}")` |
+| `SkeletonServiceProvider::class` | `{PACKAGE_NAMESPACE}ServiceProvider::class` |
+| `SkeletonEventServiceProvider::class` | `{PACKAGE_NAMESPACE}EventServiceProvider::class` |
+| `$this->loadTranslationsFrom(__DIR__ . "/../../lang", 'skeleton');` | `$this->loadTranslationsFrom(__DIR__ . "/../../lang", '{PACKAGE_LOWER}');` |
+| `$this->loadViewsFrom(__DIR__ . "/../../resources/views", 'skeleton');` | `$this->loadViewsFrom(__DIR__ . "/../../resources/views", '{PACKAGE_LOWER}');` |
+| `__('skeleton::file.key')` in the translation comment | `__('{PACKAGE_LOWER}::file.key')` |
+| `skeleton:: prefix` in the view comment | `{PACKAGE_LOWER}:: prefix` |
+
+### 3. Tests
+
+| File | From | To |
+|---|---|---|
+| `tests/Unit/ArchitectureUnitTest.php` | `namespace Fooino\Skeleton\Tests\Unit;` | `namespace Fooino\{PACKAGE_NAMESPACE}\Tests\Unit;` |
+| `tests/Unit/ArchitectureUnitTest.php` | every `Fooino\Skeleton\` in `arch()` expectations | `Fooino\{PACKAGE_NAMESPACE}\` |
+| `tests/TestCase.php` | `namespace Fooino\Skeleton\Tests;` | `namespace Fooino\{PACKAGE_NAMESPACE}\Tests;` |
+| `tests/TestCase.php` | `use Fooino\Skeleton\Providers\SkeletonServiceProvider;` | `use Fooino\{PACKAGE_NAMESPACE}\Providers\{PACKAGE_NAMESPACE}ServiceProvider;` |
+| `tests/TestCase.php` | `SkeletonServiceProvider::class` | `{PACKAGE_NAMESPACE}ServiceProvider::class` |
+| `tests/Pest.php` | `Fooino\Skeleton\Tests\TestCase::class` | `Fooino\{PACKAGE_NAMESPACE}\Tests\TestCase::class` |
+
+### 4. `src/helpers.php`
+
+| From | To |
+|---|---|
+| `FOOINO_SKELETON_CONSTANTS_DEFINED` (both occurrences) | `FOOINO_{PACKAGE_CONSTANT}_CONSTANTS_DEFINED` |
+
+### 5. Config
+
+| File | From | To |
+|---|---|---|
+| `phpunit.xml` | `name="Skeleton Package Tests"` | `name="{PACKAGE_NAMESPACE} Package Tests"` |
+| `phpdoc.dist.xml` | `<title>Skeleton API Documentation</title>` | `<title>{PACKAGE_NAMESPACE} API Documentation</title>` |
+
+### 6. Docs
+
+| File | From | To |
+|---|---|---|
+| `CHANGELOG.md` | `fooino/skeleton` | `fooino/{PACKAGE_SLUG}` |
+| `CONTRIBUTING.md` | `Fooino Skeleton Package` | `Fooino {PACKAGE_NAMESPACE} Package` |
+| `README.md` | `# Fooino skeleton package` | `# Fooino {PACKAGE_LOWER} package` |
+| `README.md` | `composer require fooino/skeleton` | `composer require fooino/{PACKAGE_SLUG}` |
+| `README.md` | `git clone https://github.com/fooino/skeleton.git` | `git clone https://github.com/fooino/{PACKAGE_SLUG}.git` |
+| `README.md` | `cd ./packages/skeleton` | `cd ./packages/{PACKAGE_SLUG}` |
+| `README.md` | everything from `## 🔄 Scaffold a New Package From This Skeleton` to the end of the file | delete |
+
+### 7. `.github/workflows/main.yml`
+
+| From | To |
+|---|---|
+| `Copy docs and README to skeleton directory` | `Copy docs and README to {PACKAGE_SLUG} directory` |
+| `fooino-docs/skeleton` (every occurrence) | `fooino-docs/{PACKAGE_SLUG}` |
+| `git add skeleton/` | `git add {PACKAGE_SLUG}/` |
+| `Update skeleton docs from fooino/skeleton@` | `Update {PACKAGE_SLUG} docs from fooino/{PACKAGE_SLUG}@` |

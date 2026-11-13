@@ -1,14 +1,14 @@
 # Fooino Lodestar
 
-The single source of truth for how Fooino Laravel packages are written, tested, and reviewed — and for the instructions every AI agent follows inside them.
+The single source of truth for how Fooino Laravel packages and the Laravel application are written, tested, and reviewed — and for the instructions every AI agent follows in them.
 
-- This repository owns the rules and package-specific deltas.
-- Each package commits only `AGENTS.md`.
-- Tool adapters are generated locally and gitignored.
+- This repository owns the rules and the project deltas.
+- `AGENTS.md` and every tool adapter are generated locally from it.
+- Nothing generated is committed; rerunning the sync rebuilds it.
 
 ## How it works
 
-Run this from a package root:
+Run this from a package or application root:
 
 ```bash
 composer ai:sync
@@ -16,72 +16,90 @@ composer ai:sync
 
 The command:
 
-1. reads the package `composer.json` to get its name,
-2. finds `targets/<key>/delta.md` in this repository,
-3. writes `AGENTS.md` with the shared rules and the package delta,
-4. writes all three tool adapters by default.
+1. reads `composer.json` to get the project name,
+2. uses `targets/<key>/delta.md` when that file exists,
+3. writes `AGENTS.md` with the rule links and the project delta, if any,
+4. writes the tool adapters selected by `--tool` (all of them by default).
 
-There is no lock file and no drift check. The command only makes the agent aware of the standards.
+An application is detected from the PSR-4 mapping to `app/` and takes its namespace from that mapping; a package derives its namespace from `composer.json`. A delta is optional.
 
 ## Layout
 
 ```text
-rules/                 Canonical rules, read in order
-  00-principles.md     Types, naming, phpDoc, style, boundaries
-  10-architecture.md   Layers, contracts, ownership, directories
-  20-exceptions.md     Exception ranges and fluent codes
-  30-testing.md        Pest structure, datasets, contract fakes
-  40-eloquent.md       Models, scopes, migrations, queries
-agents/                architecture-guard, contract-reviewer, test-engineer
-commands/              pre-pr, new-error, new-package, release, sync-standards
-templates/AGENTS.md
-templates/Exception.php.tpl
-templates/Model.php.tpl
-targets/<key>/delta.md Package-specific AGENTS.md section
-src/Actions/SyncStandardsAction.php  Orchestrates the sync
-src/Console/SyncStandardsCommand.php Symfony Console command
-src/Enums/Tool.php     Backed enum mapping tools to tasks
-src/Support/Filesystem.php  Guarded read, write, copy, delete
-src/Tasks/             GetCurrentPackageTask, GetRuleFilesTask,
-                       GetAgentsContentTask, WriteAgentsFileTask,
-                       WriteKiloFilesTask, WriteCursorFileTask,
-                       WriteClaudeFileTask
-bin/sync.php           CLI entry point
-docs/pint.md           Pint rationale (reference, not loaded)
-tests/                 Pest tests and temp-directory helper
+rules/       Canonical rules, read in numeric order
+agents/      Kilo subagents
+commands/    Kilo commands
+templates/   AGENTS.md and class templates
+targets/     Project-specific AGENTS.md delta, one directory per project key
+src/         Sync generator: action, console command, tasks, support
+bin/         CLI entry point
+docs/        Reference notes, not loaded into AGENTS.md
+tests/       Pest tests and temp-directory helper
 ```
 
-## Install in a package
+## Install
+
+In a package or the application:
 
 ```bash
 composer require --dev fooino/lodestar:^1.0
 ```
 
-## Commands
-
-Add these to each package's `composer.json`:
+Add one script to `composer.json`:
 
 ```json
 {
     "scripts": {
-        "ai:sync": "@php vendor/fooino/lodestar/bin/sync.php",
-        "ai:kilo": "@php vendor/fooino/lodestar/bin/sync.php --tool=kilo",
-        "ai:cursor": "@php vendor/fooino/lodestar/bin/sync.php --tool=cursor",
-        "ai:claude": "@php vendor/fooino/lodestar/bin/sync.php --tool=claude"
+        "ai:sync": "@php vendor/fooino/lodestar/bin/sync.php"
     }
 }
 ```
 
-| Command | Effect | Committed? |
-|---|---|---|
-| `composer ai:sync` | Write `AGENTS.md` + all adapters (default) | `AGENTS.md` only |
-| `composer ai:kilo` | Write `kilo.jsonc` + `.kilo/**` | No |
-| `composer ai:cursor` | Write `.cursor/rules/fooino-standards.mdc` | No |
-| `composer ai:claude` | Write `CLAUDE.md` | No |
+`AGENTS.md` is always written. Every tool adapter is written too unless `--tool` narrows it:
 
-`composer ai:sync` defaults to all three adapters. Use `composer ai:kilo`, `ai:cursor`, or `ai:claude` for one adapter only.
+```bash
+composer ai:sync                  # AGENTS.md + all adapters
+composer ai:sync -- --tool=kilo   # AGENTS.md + the kilo adapter
+```
+
+| `--tool` | Adapter written |
+|---|---|
+| `all` (default) | every adapter listed below |
+| `kilo` | `kilo.jsonc` + `.kilo/**` |
+| `cursor` | `.cursor/rules/fooino-standards.mdc` |
+| `claude` | `CLAUDE.md` |
 
 Codex reads `AGENTS.md` directly and needs no adapter.
+
+## Kilo commands
+
+The Kilo adapter mirrors `commands/` into `.kilo/commands/` and `agents/` into `.kilo/agents/`:
+
+| Command | Purpose |
+|---|---|
+| `check-standards` | Audit the code against the rules; asks every file or branch diff first, then writes `RULES_AUDIT.md` |
+| `file-tree` | Write every project file as a tree to `file-tree.md`, with `helpers.php` functions by name |
+| `pre-pr` | Run the quality gate and fix formatting only |
+| `new-error` | Add an error code through the `exception-architect` agent |
+| `new-package` | Scaffold a copied skeleton into a new package |
+| `release` | Prepare a package release |
+| `sync-standards` | Regenerate `AGENTS.md` and the adapters |
+
+## `.gitignore`
+
+Every generated file is rebuildable local output; rerun `composer ai:sync` to refresh it. We suggest ignoring them so generated output stays out of history and never gets edited by hand:
+
+```gitignore
+/.kilo
+/kilo.jsonc
+/.cursor
+/.mcp.json
+/boost.json
+/CLAUDE.md
+/AGENTS.md
+/RULES_AUDIT.md
+/file-tree.md
+```
 
 ## Tests
 
@@ -92,32 +110,19 @@ composer test:coverage
 
 Coverage must stay above 90%; `test:coverage` fails below that threshold.
 
-Add these to the package `.gitignore`:
+## Adding a project
 
-```gitignore
-/.kilo
-/kilo.jsonc
-/.cursor
-/CLAUDE.md
-/.mcp.json
-/boost.json
-```
+1. Add `targets/<key>/delta.md` when the project needs rules of its own. `<key>` is the part after `fooino/` in `composer.json`. Without it, the generated `AGENTS.md` carries the shared rules only.
+2. From the project root, run `composer ai:sync`.
+3. Add the `.gitignore` entries above and check the generated `AGENTS.md`.
 
-## Adding a package
-
-1. Add `targets/<key>/delta.md` to this repository. `<key>` is the package name after `fooino/` in `composer.json`.
-2. From the new package root, run `composer ai:sync`.
-3. Commit `AGENTS.md`.
-
-See [commands/new-package.md](commands/new-package.md) for the full checklist.
 
 ## Changing a rule
 
 1. Add or edit a file under `rules/`. It is picked up automatically; no list to update.
-2. Run `composer ai:sync` from the package roots that need it.
-3. Commit the regenerated `AGENTS.md` files.
+2. Run `composer ai:sync` from the project roots that need it. Generated files are ignored, so there is nothing to commit.
 
-Package-specific rules go in `targets/<key>/delta.md`, never in `rules/`.
+Project-specific rules go in `targets/<key>/delta.md`, never in `rules/`.
 
 ## License
 

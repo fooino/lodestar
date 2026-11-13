@@ -2,8 +2,10 @@
 
 ## Shape
 
+Packages are libraries, not applications.
+
 ```text
-Application (composition root)
+Application (Laravel - composition root)
         │
         ├───────────────┬───────────────┐
         ▼               ▼               ▼
@@ -33,11 +35,15 @@ fooino/skeleton ──(copied to create a package)──► fooino/<domain>
 
 `base` and `core` are the floor: `base` is the shared foundation and contract hub, `core` is the generic layer beneath it. Nothing in the floor depends upward.
 
+## Application
+
+The Laravel application is the composition root: code in `app/`, routes in `routes/`, schema in `database/`, tests in `tests/`. It owns controllers, gates, policies, bindings, and the call sites, and requires the packages it uses. The package sections below describe what it installs, not how the application itself is laid out.
+
 ## Dependency rules
 
 1. `core` depends on no Fooino package.
 2. `base` requires `core`.
-3. Domain packages require `base`; they never require another domain package.
+3. Domain packages require `base`; they never require another domain package, even as a `require-dev` dependency.
 4. The application requires the domain packages it uses and binds the contracts.
 5. No package depends on the application.
 6. Declare every Fooino package you import directly; do not rely on a transitive requirement.
@@ -61,17 +67,17 @@ fooino/skeleton ──(copied to create a package)──► fooino/<domain>
 
 ### The package provides
 
-Tasks (`run()`), Actions (`run()`), Artisan commands (`handle()`), models, requests, middleware, casts, concerns, enums, contracts, support classes, and provider registration for its own config, migrations, and commands.
+Tasks (`run()`), Actions (`run()`), Artisan commands (`handle()`), Jobs (`handle()`), models, requests, middleware, casts, concerns, enums, contracts, support classes, and provider registration for its own config, migrations, and commands.
 
 ### The application owns
 
-Routes, controllers, response rendering, gates, policies, middleware aliases and attachment, scheduling, listeners, contract bindings, and the call sites that invoke Tasks, Actions, and Commands.
+Routes, controllers, response rendering, exception rendering and reporting, gates, policies, middleware aliases and attachment, scheduling, listeners, contract bindings, and the call sites that invoke Tasks, Actions, and Commands.
 
 ### Forbidden in every package
 
 Routes, controllers, gates, policies, route registration, boot-time Task or Action invocation, assumptions about the invocation point, domain-specific config defaults, and `auth()` / `session()` / `request()` at construction time.
 
-## Directories
+## Package directories
 
 | Directory | Contents | Naming |
 |---|---|---|
@@ -86,7 +92,7 @@ Routes, controllers, gates, policies, route registration, boot-time Task or Acti
 | `src/Tasks/<Domain>/` | Work with `run()` | `*Task` |
 | `src/Actions/` | One use case with `run()` | `*Action` |
 | `src/Commands/` | Artisan commands | `*Command` |
-| `src/Jobs/` | Queued jobs | Verb phrase |
+| `src/Jobs/` | Queued jobs | `*Job` |
 | `src/Models/` | Eloquent models | Singular noun |
 | `src/Http/{Middleware,Requests}/` | HTTP units | `*Middleware`, `*Request` |
 | `src/Casts/` | Custom casts | `*Cast` |
@@ -110,6 +116,15 @@ If content does not fit a directory, propose a new one in the standards repo fir
 ## Units and transport
 
 - A Task has one `run()` and returns a value.
-- An Action is one use case; it may open a transaction and dispatch events.
-- A Command validates input, calls one Task, and returns `self::SUCCESS` or `self::FAILURE`.
-- A Job is transport only. Middleware holds no business logic.
+- An Action is one use case; it may open a transaction, compose tasks by calling them, dispatch events in `run()` method.
+- A Command `handle()` validates input, calls one Task or Action, and returns `self::SUCCESS` or `self::FAILURE`.
+- A Job is transport only: its `handle()` reads the payload and calls one Task or Action. When it needs a model, it re-fetches it from the identifier in the payload, itself or inside the Task or Action it calls.
+- A Command or Job `handle()` may not query, write models, or branch on business rules. Beyond input validation, one delegation, and reporting, the work belongs in the Task or Action.
+- A Job constructor takes scalars, arrays, and identifiers — never a Model or Collection. A queued payload stays small, the job reads current data, and a deleted row is handled deliberately instead of failing when Laravel restores the model.
+- Middleware holds no business logic.
+
+## Dependencies
+
+- Resolve a service with `app()` in the method that uses it — `app(ParseTask::class)->run(limit: $limit)`. Do not inject it in `__construct()` just to call it from `run()` or `handle()`.
+- Constructor injection is allowed only when both are true: a private or protected method needs the dependency, **and** that method runs inside a loop. Then resolve once instead of calling `app()` on every iteration.
+- A constructor carries the data the object is built from — a Job payload, a value object. It is not where `run()` and `handle()` collect their collaborators.

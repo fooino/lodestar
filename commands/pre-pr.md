@@ -2,7 +2,7 @@
 description: Run the full Fooino quality gate, fix formatting only, and report failures that need a human.
 ---
 
-Run the pre-PR gate for this package. Read `vendor/fooino/lodestar/rules/00-principles.md` and `vendor/fooino/lodestar/rules/30-testing.md` first.
+Run the pre-PR gate for this package. Read `00-principles.md` and `30-testing.md` first.
 
 ## Steps
 

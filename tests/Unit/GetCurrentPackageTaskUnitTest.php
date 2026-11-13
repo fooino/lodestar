@@ -1,7 +1,10 @@
 <?php
 
+namespace Fooino\Lodestar\Tests\Unit;
+
 use Fooino\Lodestar\Support\Filesystem;
 use Fooino\Lodestar\Tasks\GetCurrentPackageTask;
+use RuntimeException;
 
 /**
  * Create a temporary package root with an optional composer.json
@@ -38,11 +41,39 @@ describe('GetCurrentPackageTask', function () {
             $package = (new GetCurrentPackageTask())->run();
 
             expect($package['root'])->toBe(realpath(path: $root));
+
             expect($package['title'])->toBe('Fooino Core');
+
             expect($package['composer'])->toBe('fooino/core');
+
             expect($package['namespace'])->toBe('Fooino\Core');
+
             expect($package['delta'])->toBe(dirname(path: __DIR__, levels: 2) . '/targets/core/delta.md');
+
             expect($package['delta'])->toBeFile();
+
+            //
+        } finally {
+
+            chdir(directory: $cwd);
+
+            removeDirectory(path: $root);
+        }
+    });
+
+    it('uses the application namespace when the project is an application', function () {
+
+        $cwd = getcwd();
+        $root = makePackageRoot(composer: [
+            'name'     => 'fooino/derak',
+            'autoload' => ['psr-4' => ['App\\' => 'app/']],
+        ]);
+
+        chdir(directory: $root);
+
+        try {
+
+            expect((new GetCurrentPackageTask())->run()['namespace'])->toBe('App');
 
             //
         } finally {
@@ -63,7 +94,10 @@ describe('GetCurrentPackageTask', function () {
         try {
 
             expect(fn() => (new GetCurrentPackageTask())->run())
-                ->toThrow(RuntimeException::class, 'No composer.json found');
+                ->toThrow(
+                    RuntimeException::class,
+                    'No composer.json found'
+                );
 
             //
         } finally {
@@ -84,7 +118,10 @@ describe('GetCurrentPackageTask', function () {
         try {
 
             expect(fn() => (new GetCurrentPackageTask())->run())
-                ->toThrow(RuntimeException::class, 'missing package name');
+                ->toThrow(
+                    RuntimeException::class,
+                    'missing package name'
+                );
 
             //
         } finally {
@@ -105,7 +142,10 @@ describe('GetCurrentPackageTask', function () {
         try {
 
             expect(fn() => (new GetCurrentPackageTask())->run())
-                ->toThrow(RuntimeException::class, 'Invalid package name');
+                ->toThrow(
+                    RuntimeException::class,
+                    'Invalid package name'
+                );
 
             //
         } finally {
@@ -126,7 +166,12 @@ describe('GetCurrentPackageTask', function () {
         try {
 
             expect(fn() => (new GetCurrentPackageTask())->run())
-                ->toThrow(RuntimeException::class, 'Invalid package name');
+                ->toThrow(
+                    RuntimeException::class,
+                    'Invalid package name'
+                );
+
+            //
         } finally {
 
             chdir(directory: $cwd);
@@ -135,7 +180,7 @@ describe('GetCurrentPackageTask', function () {
         }
     });
 
-    it('fails without a standards delta', function () {
+    it('returns no delta when the package has none', function () {
 
         $cwd = getcwd();
         $root = makePackageRoot(composer: ['name' => 'fooino/unknown']);
@@ -144,8 +189,9 @@ describe('GetCurrentPackageTask', function () {
 
         try {
 
-            expect(fn() => (new GetCurrentPackageTask())->run())
-                ->toThrow(RuntimeException::class, 'No standards delta');
+            $package = (new GetCurrentPackageTask())->run();
+
+            expect($package['delta'])->toBeNull();
 
             //
         } finally {

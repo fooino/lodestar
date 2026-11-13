@@ -2,10 +2,11 @@
 
 namespace Fooino\Lodestar\Support;
 
+use Fooino\Lodestar\Enums\AllowedExtension;
 use RuntimeException;
 
 /**
- * Guarded filesystem access for JSON and Markdown files
+ * Guarded filesystem access for the allowed file extensions
  */
 class Filesystem
 {
@@ -205,7 +206,7 @@ class Filesystem
     {
         $extension = strtolower(string: pathinfo(path: $path, flags: PATHINFO_EXTENSION));
 
-        if (!in_array(needle: $extension, haystack: ['json', 'jsonc', 'md', 'mdc'], strict: true)) {
+        if (AllowedExtension::tryFrom(value: $extension) === null) {
 
             throw new RuntimeException(message: 'Unsupported file type: ' . $path);
         }

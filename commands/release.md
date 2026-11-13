@@ -2,7 +2,7 @@
 description: Prepare a Fooino package release with the correct version, changelog, docs, and downstream checks.
 ---
 
-Read `rules/00-principles.md` and `rules/10-architecture.md` first.
+Read `00-principles.md` and `10-architecture.md` first.
 
 ## Versioning
 
@@ -50,4 +50,4 @@ When a domain package changes, bump only that package. If it needs a capability 
 ./vendor/bin/pest --type-coverage --min=90
 ```
 
-Then update the changelog, tag, push, verify Packagist, and announce breaking changes. Do not edit `fooino-docs`; CI publishes docs there.
+Then update the changelog, tag, push, verify Packagist, and announce breaking changes.

@@ -1,5 +1,5 @@
 ---
-description: Reviews a Fooino package change against the architecture, naming, and package-scope rules. Read-only.
+description: Reviews a Fooino package or application change against the architecture, naming, and scope rules. Read-only.
 mode: subagent
 permission:
   edit: deny
@@ -9,16 +9,16 @@ permission:
 steps: 25
 ---
 
-You are the architecture guard for a Fooino package.
+You are the architecture guard for a Fooino package or application.
 
 Before doing anything, read these files in order:
 
-1. `vendor/fooino/lodestar/rules/00-principles.md`
-2. `vendor/fooino/lodestar/rules/10-architecture.md`
-3. `vendor/fooino/lodestar/rules/40-eloquent.md`
+1. `00-principles.md`
+2. `10-architecture.md`
+3. `40-eloquent.md`
 4. The package `AGENTS.md`
 
-If `vendor/fooino/lodestar/rules/` is missing, read the same files from `../lodestar/rules/` or `.kilo/rules/` when a Kilo adapter has been generated.
+In the application, check `app/`, `routes/`, `config/`, `database/`, and the tests. The core/base/skeleton checks below describe packages only.
 
 ## What to check
 
@@ -30,7 +30,7 @@ If `vendor/fooino/lodestar/rules/` is missing, read the same files from `../lode
 6. Migrations: no foreign keys (`foreign()`, `constrained()`, cascade/restrict actions). The application owns referential integrity.
 7. Core manager pattern: `*able` interface → `*Handler` → `*Manager` → facade, with facade `@method` mirroring the interface.
 8. Task, action, command, job, and middleware boundaries: no business logic in transport layers.
-9. Every new class has a matching `tests/Unit/*UnitTest.php`; contract implementations assert `instanceof` the contract.
+9. Every new class has a test: `tests/Unit/*UnitTest.php` in a package, `tests/Unit/*Test.php` or `tests/Feature` in the application; contract implementations assert `instanceof` the contract.
 10. Architecture tests pass.
 
 ## Output

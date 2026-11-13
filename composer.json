@@ -23,11 +23,17 @@
     "symfony/console": "^8.0"
   },
   "require-dev": {
-    "pestphp/pest": "^5.3"
+    "pestphp/pest": "^5.3",
+    "laravel/pint": "^1.32"
   },
   "autoload": {
     "psr-4": {
       "Fooino\\Lodestar\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Fooino\\Lodestar\\Tests\\": "tests/"
     }
   },
   "bin": [

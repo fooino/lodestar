@@ -13,18 +13,23 @@ class GetCurrentPackageTask
     public function run(): array
     {
         $root = $this->root();
+
         $composer = $this->composer(root: $root);
+
         $name = (string) $composer['name'];
+
         [$vendor, $package] = $this->splitName(name: $name);
+
         $key = strtolower(string: $package);
+
         $pascal = $this->pascal(value: $key);
 
         return [
             'root'      => $root,
             'title'     => ucfirst(string: $vendor) . ' ' . $pascal,
             'composer'  => $name,
-            'namespace' => ucfirst(string: $vendor) . '\\' . $pascal,
-            'delta'     => $this->delta(key: $key, name: $name),
+            'namespace' => $this->namespace(composer: $composer, vendor: $vendor, pascal: $pascal),
+            'delta'     => $this->delta(key: $key),
         ];
     }
 
@@ -97,18 +102,31 @@ class GetCurrentPackageTask
     }
 
     /**
-     * Return the standards delta file for the package
+     * Return the application namespace from composer.json, or derive a package one
      */
-    private function delta(string $key, string $name): string
+    private function namespace(array $composer, string $vendor, string $pascal): string
+    {
+        $mappings = $composer['autoload']['psr-4'] ?? [];
+
+        foreach ($mappings as $prefix => $path) {
+
+            if (trim(string: (string) $path, characters: '/') === 'app') {
+
+                return rtrim(string: (string) $prefix, characters: '\\');
+            }
+        }
+
+        return ucfirst(string: $vendor) . '\\' . $pascal;
+    }
+
+    /**
+     * Return the standards delta file for the package when it exists
+     */
+    private function delta(string $key): string|null
     {
         $delta = dirname(path: __DIR__, levels: 2) . '/targets/' . $key . '/delta.md';
 
-        if (!(new Filesystem())->isFile(path: $delta)) {
-
-            throw new RuntimeException(message: 'No standards delta for ' . $name . '. Run this command from a Fooino package root.');
-        }
-
-        return $delta;
+        return (new Filesystem())->isFile(path: $delta) ? $delta : null;
     }
 
     /**
