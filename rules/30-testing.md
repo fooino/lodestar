@@ -4,40 +4,101 @@
 
 Pest 5 with `orchestra/testbench`. Type coverage through `pest-plugin-type-coverage`. Providers are registered in `getPackageProviders()`.
 
-## Structure
+## Writing tests
 
-- One test file per source class: `tests/Unit/<Class>UnitTest.php`.
-- Inline fixtures and model stubs at the top of the file.
-- Large assertion tables(more than 10): static methods in `tests/Data/Datasets.php`.
-- Small assertion tables(less than 10): use `foreach(['1.1' => '1', '2' => '2', '3.5' => '3'] as $number => $expected)`.
-- Reusable contract fakes: `tests/Fakes/`.
-- Every Eloquent fixture uses `Modelable`.
+To write a test, or edit an existing one, use the `test-engineer` agent. It owns the mechanics — file structure, naming, grouping, datasets, assertions, and fixtures. This page is the policy it must follow.
 
-## Naming
+## Database and services
 
-- Group with `describe('<Subject>', ...)`.
-- New tests use `it('<behavior>', ...)`. Existing `test()` calls in core may remain; migrate only the file you touch.
-- Names describe behavior: `it('rejects a negative precision')`.
+Default to SQLite with the `array` cache driver. Set it in `phpunit.xml`:
 
-## Datasets
+```xml
+<php>
+    <env name="APP_ENV" value="testing"/>
+    <env name="DB_CONNECTION" value="sqlite"/>
+    <env name="DB_DATABASE" value=":memory:"/>
+    <env name="CACHE_STORE" value="array"/>
+    <env name="REDIS_PREFIX" value="fooino-testing"/>
+    <env name="CACHE_PREFIX" value="core"/>
+</php>
+```
 
-Do not use Pest's `->with()` for assertion tables. Each row becomes a test case and multiplies setup cost. Use one test with `foreach`:
+The MySQL test database is `fooino_testing`, reached locally as `root` / `123`. Point the `mysql` connection at it in `tests/TestCase.php` with Testbench's `defineEnvironment()`; the dedicated `MYSQL_TEST_*` keys keep the SQLite default untouched:
 
 ```php
-it('converts every scientific number', function () {
+/**
+ * Configure the MySQL test connection
+ */
+protected function defineEnvironment($app): void
+{
+    $app['config']->set(key: 'database.connections.mysql.database', value: env(key: 'MYSQL_TEST_DATABASE', default: 'fooino_testing'));
+    $app['config']->set(key: 'database.connections.mysql.username', value: env(key: 'MYSQL_TEST_USERNAME', default: 'root'));
+    $app['config']->set(key: 'database.connections.mysql.password', value: env(key: 'MYSQL_TEST_PASSWORD', default: '123'));
+}
+```
 
-    foreach (Datasets::mathConvertScientificNumber() as $number => $expected) {
-    
-        expect(convertScientificNumber(number: $number))
-            ->toBe($expected);
+CI overrides the `MYSQL_TEST_*` values. Redis reads `REDIS_HOST`, `REDIS_PORT`, and `REDIS_DB` the same way; its key prefix is always `fooino-testing`, while the cache prefix is the package name from `composer.json` — the part after `fooino/`, such as `core`, `base`, or `media` — or the application name inside an application.
+
+A test that needs real engine behavior — full-text search, a `MATCH … AGAINST` query, a Redis-only command — may use it, but it must guard itself first. Put one guard per service in `tests/Pest.php` and call it before touching the service:
+
+```php
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Redis;
+use PHPUnit\Framework\Assert;
+use Throwable;
+
+/**
+ * Skip unless the dedicated MySQL test database is reachable
+ */
+function requireMysql(): void
+{
+    $connection = DB::connection('mysql');
+
+    if ($connection->getDatabaseName() !== 'fooino_testing') {
+
+        Assert::markTestSkipped('MySQL connection is not the fooino_testing database');
     }
+
+    try {
+
+        $connection->getPdo();
+
+        // 
+    } catch (Throwable $exception) {
+
+        Assert::markTestSkipped('MySQL is not available: ' . $exception->getMessage());
+    }
+}
+
+/**
+ * Skip unless Redis is reachable
+ */
+function requireRedis(): void
+{
+    try {
+
+        Redis::connection()->ping();
+
+        // 
+    } catch (Throwable $exception) {
+
+        Assert::markTestSkipped('Redis is not available: ' . $exception->getMessage());
+    }
+}
+```
+
+```php
+it('finds invoices with a full-text search', function () {
+
+    requireMysql();
+
+    expect(searchInvoices(text: 'lorem'))->toHaveCount(1);
 });
 ```
 
-## Assertions
-
-- Use Pest expectations first: `expect($value)->toBe($expected)`, `->toThrow(...)`, `->toHaveCount(...)`.
-- Use PHPUnit's `$this->assert*()` only when Pest has no equivalent. Do not mix Pest and PHPUnit assertions in one test without a reason.
+- Read the database name from the connection config before connecting: `fooino_testing` is the only MySQL database a test may use, so a mismatch skips instead of touching development data.
+- Leave the database empty when you finish: wrap the test in a transaction or truncate the tables it touched; never assume it is empty when you arrive.
+- Do not replace the service with a fake to avoid the guard. If the test exists because MySQL or Redis behaves differently, it runs there or skips.
 
 ## Cross-package contracts
 
@@ -64,8 +125,7 @@ After every task, run the package tests before reporting done:
 
 ## Rules
 
-- Do not mock what the package owns; use Testbench and a real SQLite database.
-- Core tests must not need a database or an HTTP request.
+- Do not mock what the package owns; run it against the real database or service.
 - Use `Event::fake()` and `Queue::fake()` for side effects.
 - No `sleep()`, network calls, or order-dependent tests.
 - Architecture tests are part of the suite; add an `arch()` rule for every new directory.
