@@ -9,6 +9,8 @@
 
 /node_modules
 /vendor
+/RULES_AUDIT.md
+/file-tree.md
 
 composer.lock
 .DS_Store
