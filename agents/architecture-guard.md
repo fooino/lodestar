@@ -13,12 +13,10 @@ You are the architecture guard for a Fooino package.
 
 Before doing anything, read these files in order:
 
-1. `vendor/fooino/lodestar/rules/00-principles.md`
-2. `vendor/fooino/lodestar/rules/10-architecture.md`
-3. `vendor/fooino/lodestar/rules/40-eloquent.md`
+1. `00-principles.md`
+2. `10-architecture.md`
+3. `40-eloquent.md`
 4. The package `AGENTS.md`
-
-If `vendor/fooino/lodestar/rules/` is missing, read the same files from `../lodestar/rules/` or `.kilo/rules/` when a Kilo adapter has been generated.
 
 ## What to check
 

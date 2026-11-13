@@ -37,4 +37,17 @@ describe('GetAgentsContentTask', function () {
             removeDirectory(path: $root);
         }
     });
+
+    it('renders without a delta', function () {
+
+        $content = (new GetAgentsContentTask())->run(package: [
+            'title'     => 'Fooino Core',
+            'composer'  => 'fooino/core',
+            'namespace' => 'Fooino\Core',
+            'delta'     => null,
+        ]);
+
+        expect($content)->toContain('# Fooino Core');
+        expect($content)->not->toContain('{{');
+    });
 });

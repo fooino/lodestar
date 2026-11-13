@@ -29,7 +29,7 @@ class GetCurrentPackageTask
             'title'     => ucfirst(string: $vendor) . ' ' . $pascal,
             'composer'  => $name,
             'namespace' => ucfirst(string: $vendor) . '\\' . $pascal,
-            'delta'     => $this->delta(key: $key, name: $name),
+            'delta'     => $this->delta(key: $key),
         ];
     }
 
@@ -102,18 +102,13 @@ class GetCurrentPackageTask
     }
 
     /**
-     * Return the standards delta file for the package
+     * Return the standards delta file for the package when it exists
      */
-    private function delta(string $key, string $name): string
+    private function delta(string $key): string|null
     {
         $delta = dirname(path: __DIR__, levels: 2) . '/targets/' . $key . '/delta.md';
 
-        if (!(new Filesystem())->isFile(path: $delta)) {
-
-            throw new RuntimeException(message: 'No standards delta for ' . $name . '. Run this command from a Fooino package root.');
-        }
-
-        return $delta;
+        return (new Filesystem())->isFile(path: $delta) ? $delta : null;
     }
 
     /**

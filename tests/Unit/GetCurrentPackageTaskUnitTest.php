@@ -157,7 +157,7 @@ describe('GetCurrentPackageTask', function () {
         }
     });
 
-    it('fails without a standards delta', function () {
+    it('returns no delta when the package has none', function () {
 
         $cwd = getcwd();
         $root = makePackageRoot(composer: ['name' => 'fooino/unknown']);
@@ -166,11 +166,9 @@ describe('GetCurrentPackageTask', function () {
 
         try {
 
-            expect(fn() => (new GetCurrentPackageTask())->run())
-                ->toThrow(
-                    RuntimeException::class,
-                    'No standards delta'
-                );
+            $package = (new GetCurrentPackageTask())->run();
+
+            expect($package['delta'])->toBeNull();
 
             //
         } finally {
