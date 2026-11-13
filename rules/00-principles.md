@@ -1,10 +1,10 @@
 # 00 — Principles
 
-These apply to every Fooino package. A package `AGENTS.md` may add constraints; it may not relax these without a standards change.
+These apply to every Fooino project — a package or the application. A project `AGENTS.md` may add constraints; it may not relax these without a standards change.
 
 ## Stack
 
-- PHP `^8.5`, Laravel `^13`, MySQL `^9.7` — the versions every package targets.
+- PHP `^8.5`, Laravel `^13`, MySQL `^9.7` — the versions every project targets.
 - The application uses Redis for caching.
 - Tests default to SQLite with the `array` cache driver. A test that needs real MySQL or Redis guards itself, as described in `30-testing.md`.
 
@@ -40,7 +40,7 @@ These apply to every Fooino package. A package `AGENTS.md` may add constraints; 
 - One space around operators; `$a . $b`; `!$value`; `fn() => ...`; no trailing commas; keep `string|null` as written.
 - Never hand-format or add suppression comments. If a rule is wrong, change `pint.json` and its rationale in `pint.md`.
 - No `dd`, `dump`, `var_dump`, `ray`, `print_r`, or `error_log` in committed code.
-- `pint.json` is shared across packages; change it everywhere in one change.
+- `pint.json` is shared across projects; change it everywhere in one change.
 
 ## Quality gates
 
@@ -60,5 +60,5 @@ These apply to every Fooino package. A package `AGENTS.md` may add constraints; 
 
 - One logical change per commit or pull request; no drive-by reformatting.
 - Update `CHANGELOG.md` for user-visible changes.
-- A package `AGENTS.md` is generated; package notes go in `targets/<package>/delta.md`.
+- A project `AGENTS.md` is generated; project notes go in `targets/<key>/delta.md`.
 - Never edit generated `AGENTS.md` or local tool adapters by hand; change the rules and re-sync.

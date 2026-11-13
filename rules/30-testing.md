@@ -2,7 +2,7 @@
 
 ## Stack
 
-Pest 5 with `orchestra/testbench`. Type coverage through `pest-plugin-type-coverage`. Providers are registered in `getPackageProviders()`.
+Pest 5 with `orchestra/testbench` in a package and `pest-plugin-laravel` in the application. Type coverage through `pest-plugin-type-coverage`. Package providers are registered in `getPackageProviders()`; application tests extend `Tests\TestCase`.
 
 ## Writing tests
 
@@ -23,7 +23,7 @@ Default to SQLite with the `array` cache driver. Set it in `phpunit.xml`:
 </php>
 ```
 
-The MySQL test database is `fooino_testing`, reached locally as `root` / `123`. Point the `mysql` connection at it in `tests/TestCase.php` with Testbench's `defineEnvironment()`; the dedicated `MYSQL_TEST_*` keys keep the SQLite default untouched:
+The MySQL test database is `fooino_testing`, reached locally as `root` / `123`. In a package, point the `mysql` connection at it in `tests/TestCase.php` with Testbench's `defineEnvironment()`; in the application, set the `MYSQL_TEST_*` values in `phpunit.xml` or `.env.testing`. The dedicated keys keep the SQLite default untouched:
 
 ```php
 /**

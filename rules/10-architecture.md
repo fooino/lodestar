@@ -35,6 +35,10 @@ fooino/skeleton ──(copied to create a package)──► fooino/<domain>
 
 `base` and `core` are the floor: `base` is the shared foundation and contract hub, `core` is the generic layer beneath it. Nothing in the floor depends upward.
 
+## Application
+
+The Laravel application is the composition root: code in `app/`, routes in `routes/`, schema in `database/`, tests in `tests/`. It owns controllers, gates, policies, bindings, and the call sites, and requires the packages it uses. The package sections below describe what it installs, not how the application itself is laid out.
+
 ## Dependency rules
 
 1. `core` depends on no Fooino package.
@@ -73,7 +77,7 @@ Routes, controllers, response rendering, exception rendering and reporting, gate
 
 Routes, controllers, gates, policies, route registration, boot-time Task or Action invocation, assumptions about the invocation point, domain-specific config defaults, and `auth()` / `session()` / `request()` at construction time.
 
-## Directories
+## Package directories
 
 | Directory | Contents | Naming |
 |---|---|---|

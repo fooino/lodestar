@@ -61,6 +61,29 @@ describe('GetCurrentPackageTask', function () {
         }
     });
 
+    it('uses the application namespace when the project is an application', function () {
+
+        $cwd = getcwd();
+        $root = makePackageRoot(composer: [
+            'name'     => 'fooino/derak',
+            'autoload' => ['psr-4' => ['App\\' => 'app/']],
+        ]);
+
+        chdir(directory: $root);
+
+        try {
+
+            expect((new GetCurrentPackageTask())->run()['namespace'])->toBe('App');
+
+            //
+        } finally {
+
+            chdir(directory: $cwd);
+
+            removeDirectory(path: $root);
+        }
+    });
+
     it('fails without composer.json', function () {
 
         $cwd = getcwd();

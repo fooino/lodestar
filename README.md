@@ -81,6 +81,7 @@ Every generated file is rebuildable local output; rerun `composer ai:sync` to re
 /boost.json
 /CLAUDE.md
 /AGENTS.md
+/RULES_AUDIT.md
 ```
 
 ## Tests

@@ -2,8 +2,9 @@
 
 ## Models
 
+- Models live in `src/Models/` in a package and `app/Models/` in the application.
 - Start a new model from `Model.php.tpl`; fill `{{namespace}}` and `{{class}}`.
-- Every model uses `Fooino\Base\Concerns\Modelable` plus domain concerns.
+- Every project model uses `Fooino\Base\Concerns\Modelable` plus domain concerns.
 - Four banner sections in this order, even when empty: Relationships; Accessors, Mutators & Casts; Scopes; Custom Functions.
 - Use `#[Guarded('id')]` Never `$guarded = []`.
 - Declare `casts()` for `created_at_tz`, `updated_at_tz`, `created_at_ago`, `updated_at_ago`.
@@ -20,11 +21,11 @@
 ## Migrations
 
 - One migration per table.
-- No foreign keys: no `foreign()`, `constrained()`, or cascade/restrict actions. The application adds them.
+- No foreign keys in package migrations: no `foreign()`, `constrained()`, or cascade/restrict actions. The application adds them.
 - Indexing is allowed: use the normal column type (`unsignedBigInteger`, `ulid`) with `->index()` or `$table->index(...)`.
 - Conventions: `ulid(..., 26)` for public IDs, `nullableMorphs()` for optional relations, `unsignedTinyInteger` for flags, `created_date` beside `timestamps()` when The number of rows in the table can be very large.
 - Add indexes for columns used by scopes in `where` and `orderBy`.
-- `down()` drops only what the package created.
+- `down()` drops only what the migration created.
 
 ## Queries and writes
 

@@ -28,7 +28,7 @@ class GetCurrentPackageTask
             'root'      => $root,
             'title'     => ucfirst(string: $vendor) . ' ' . $pascal,
             'composer'  => $name,
-            'namespace' => ucfirst(string: $vendor) . '\\' . $pascal,
+            'namespace' => $this->namespace(composer: $composer, vendor: $vendor, pascal: $pascal),
             'delta'     => $this->delta(key: $key),
         ];
     }
@@ -99,6 +99,24 @@ class GetCurrentPackageTask
     private function valid(string $name): bool
     {
         return preg_match(pattern: '/^[a-z0-9]([_.-]?[a-z0-9]+)*$/', subject: $name) === 1;
+    }
+
+    /**
+     * Return the application namespace from composer.json, or derive a package one
+     */
+    private function namespace(array $composer, string $vendor, string $pascal): string
+    {
+        $mappings = $composer['autoload']['psr-4'] ?? [];
+
+        foreach ($mappings as $prefix => $path) {
+
+            if (trim(string: (string) $path, characters: '/') === 'app') {
+
+                return rtrim(string: (string) $prefix, characters: '\\');
+            }
+        }
+
+        return ucfirst(string: $vendor) . '\\' . $pascal;
     }
 
     /**

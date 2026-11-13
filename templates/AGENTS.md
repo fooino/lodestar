@@ -13,6 +13,6 @@ Every other standards file names these by file name only.
 
 If `vendor/fooino/lodestar/` is missing try to find files from `../lodestar` or read it at remote repository at http://github.com/fooino/lodestar.
 
-**Package:** `{{composer}}` · **Namespace:** `{{namespace}}`
+**Project:** `{{composer}}` · **Namespace:** `{{namespace}}`
 
 {{delta}}
