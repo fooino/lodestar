@@ -2,6 +2,7 @@
 
 ## Models
 
+- Start a new model from `Model.php.tpl`; fill `{{namespace}}` and `{{class}}`.
 - Every model uses `Fooino\Base\Concerns\Modelable` plus domain concerns.
 - Four banner sections in this order, even when empty: Relationships; Accessors, Mutators & Casts; Scopes; Custom Functions.
 - Use `#[Guarded('id')]` Never `$guarded = []`.
@@ -29,7 +30,7 @@
 
 - Avoid N+1: eager load relationships used in output.
 - Use `runInChunks()` for batch work; never load an unbounded table.
-- Use the injected `Mavinoo\Batch\Batch` service (`update(table: $model, values: $chunk, index: 'id')`) for bulk updates instead of updating rows in a loop or using `upsert`. Chunk with `runInChunks()` first; `Fooino\Base\Tasks\Requests\ParseRequestRecordsTask` is the reference.
+- Use the injected `Mavinoo\Batch\Batch` service (`update(table: $model, values: $chunk, index: 'id')`) for bulk updates instead of updating rows in a loop or using `upsert`. Chunk with `runInChunks()` first.
 - Use `firstOrCreate` or `updateOrCreate` for idempotent writes.
 - Wrap multi-step writes in `DB::transaction()`.
 - Prefer model scopes over raw SQL, and bind every value.
